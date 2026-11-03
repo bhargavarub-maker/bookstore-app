@@ -1,0 +1,21 @@
+# Optional: starts PostgreSQL and MySQL locally with Docker.
+#   docker compose up -d postgres     (or: mysql)
+# Then run the app with the matching profile (see README).
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: bookstore
+      POSTGRES_USER: bookstore
+      POSTGRES_PASSWORD: bookstore
+    ports:
+      - "5432:5432"
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: bookstore
+      MYSQL_USER: bookstore
+      MYSQL_PASSWORD: bookstore
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"

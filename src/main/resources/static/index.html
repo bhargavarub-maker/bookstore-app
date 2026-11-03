@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shop · Bookstore</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!--
+  This web app is the "Frontend" box from the Week 0 diagram. It never touches the database:
+  every page calls the REST API (/v1/books, /v1/orders) with HTTP Basic auth.
+  Click "API calls" (bottom right) or open your browser's developer tools (Network tab)
+  to watch the calls.
+-->
+<main class="container">
+  <div class="page-head">
+    <div>
+      <h1>Find your next book</h1>
+      <p class="muted" style="margin:0">Browse the catalog and add books to your cart.</p>
+    </div>
+  </div>
+
+  <form class="card toolbar" id="search-form">
+    <label class="field grow">Author
+      <input id="search-author" placeholder="Search by author, e.g. Weir">
+    </label>
+    <label class="field">Show
+      <select id="search-limit">
+        <option value="20">20 books</option>
+        <option value="50">50 books</option>
+        <option value="100">100 books</option>
+      </select>
+    </label>
+    <button class="btn">Search</button>
+  </form>
+
+  <div class="chips" id="genres"></div>
+  <div class="book-grid" id="books"></div>
+</main>
+<script src="common.js"></script>
+<script src="shop.js"></script>
+</body>
+</html>

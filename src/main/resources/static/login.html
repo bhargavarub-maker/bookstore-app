@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in · Bookstore</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- The API uses HTTP Basic authentication. This page checks the username and password by
+     calling the API once, then keeps them for this browser tab (see common.js). -->
+<main class="login-page">
+  <form class="card login-card" id="login-form">
+    <div class="logo">📚</div>
+    <div>
+      <h1>Bookstore</h1>
+      <p class="muted" style="margin:0">Sign in to browse books and place orders.</p>
+    </div>
+    <label class="field">Username <input id="username" autocomplete="username" required autofocus></label>
+    <label class="field">Password <input id="password" type="password" autocomplete="current-password" required></label>
+    <div id="login-error" class="form-error hidden"></div>
+    <button class="btn block" id="login-btn">Sign in</button>
+    <p class="hint">Running locally? The default login is <strong>student</strong> / <strong>bookstore123</strong>
+      (set in <code>application.properties</code>).</p>
+  </form>
+</main>
+<script src="common.js"></script>
+<script src="login.js"></script>
+</body>
+</html>

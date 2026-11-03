@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orders · Bookstore</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="container">
+  <div class="page-head">
+    <div>
+      <h1>Orders</h1>
+      <p class="muted" style="margin:0">Every order placed through the API. Cancel one to put its books back in stock.</p>
+    </div>
+    <a class="btn light" href="index.html">← Continue shopping</a>
+  </div>
+
+  <form class="card toolbar" id="filter-form">
+    <label class="field grow">Customer email
+      <input id="filter-email" type="email" placeholder="Leave empty to see everyone's orders">
+    </label>
+    <label class="field">Status
+      <select id="filter-status">
+        <option value="">All</option>
+        <option value="PLACED">Placed</option>
+        <option value="CANCELLED">Cancelled</option>
+      </select>
+    </label>
+    <button class="btn">Show orders</button>
+  </form>
+
+  <div class="stats" id="stats"></div>
+  <div class="order-list" id="orders"></div>
+</main>
+<script src="common.js"></script>
+<script src="orders.js"></script>
+</body>
+</html>

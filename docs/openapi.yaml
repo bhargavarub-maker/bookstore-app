@@ -1,0 +1,466 @@
+openapi: 3.1.0
+info:
+  title: Bookstore API
+  description: |-
+    Sample backend for the Apigee training. Two REST APIs share one app:
+    **Books** (the catalog) and **Orders** (customer purchases).
+    Later in the course this same API is placed behind an Apigee proxy.
+
+    Every call needs **HTTP Basic** authentication: click **Authorize** and enter
+    the username and password (default `student` / `bookstore123`).
+  contact:
+    name: Vone8
+    url: https://vone8.com
+  version: 1.0.0
+servers:
+- url: /
+  description: This server (localhost or Cloud Run)
+security:
+- basicAuth: []
+tags:
+- name: Books
+  description: Browse and manage the book catalog
+- name: Orders
+  description: Place and track customer orders
+paths:
+  /v1/books/{id}:
+    get:
+      tags:
+      - Books
+      summary: Get one book
+      operationId: getBook
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: The book
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Book"
+        "404":
+          description: No book with that id
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    put:
+      tags:
+      - Books
+      summary: Replace a book's details
+      operationId: updateBook
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookRequest"
+        required: true
+      responses:
+        "200":
+          description: Updated
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          description: Invalid body
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: No book with that id
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      tags:
+      - Books
+      summary: Delete a book
+      operationId: deleteBook
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: No book with that id
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/orders:
+    get:
+      tags:
+      - Orders
+      summary: List orders
+      description: Optionally only one customer's orders.
+      operationId: listOrders
+      parameters:
+      - name: customerEmail
+        in: query
+        description: "Customer email, e.g. asha@vone8.com"
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+    post:
+      tags:
+      - Orders
+      summary: Place an order
+      description: Takes the books out of stock and records today's prices.
+      operationId: placeOrder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderRequest"
+        required: true
+      responses:
+        "201":
+          description: Order placed
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Invalid body
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: A book in the order does not exist
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Not enough copies in stock
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/orders/{id}/cancel:
+    post:
+      tags:
+      - Orders
+      summary: Cancel an order
+      description: Marks the order CANCELLED and puts the copies back in stock.
+      operationId: cancelOrder
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Cancelled
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: No order with that id
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Already cancelled
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/books:
+    get:
+      tags:
+      - Books
+      summary: List books
+      description: "Optionally filter by genre or author, and cap the number of results."
+      operationId: listBooks
+      parameters:
+      - name: genre
+        in: query
+        description: "Exact genre, e.g. scifi"
+        required: false
+        schema:
+          type: string
+      - name: author
+        in: query
+        description: Part of the author's name
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: Maximum results (1-100)
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+          maximum: 100
+          minimum: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+    post:
+      tags:
+      - Books
+      summary: Add a book
+      operationId: createBook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookRequest"
+        required: true
+      responses:
+        "201":
+          description: Created; the Location header points to the new book
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          description: Invalid body
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /v1/orders/{id}:
+    get:
+      tags:
+      - Orders
+      summary: Get one order
+      operationId: getOrder
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: The order
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: No order with that id
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiError"
+components:
+  schemas:
+    BookRequest:
+      type: object
+      description: Fields needed to create or update a book
+      properties:
+        title:
+          type: string
+          example: Project Hail Mary
+          minLength: 1
+        author:
+          type: string
+          example: Andy Weir
+          minLength: 1
+        genre:
+          type: string
+          example: scifi
+        price:
+          type: number
+          example: 14.5
+          minimum: 0.00
+        stock:
+          type: integer
+          format: int32
+          example: 5
+          minimum: 0
+      required:
+      - author
+      - price
+      - stock
+      - title
+    ApiError:
+      type: object
+      description: Error details
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          format: int32
+          example: 404
+        error:
+          type: string
+          example: Not Found
+        message:
+          type: string
+          example: Book 99 not found
+        path:
+          type: string
+          example: /v1/books/99
+        details:
+          type: array
+          description: "Field problems, only for validation errors"
+          items:
+            type: string
+    Book:
+      type: object
+      description: A book in the catalog
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        title:
+          type: string
+          example: Dune
+        author:
+          type: string
+          example: Frank Herbert
+        genre:
+          type: string
+          example: scifi
+        price:
+          type: number
+          example: 9.99
+        stock:
+          type: integer
+          format: int32
+          description: Copies available to order
+          example: 12
+    OrderLineRequest:
+      type: object
+      description: A book id and how many copies
+      properties:
+        bookId:
+          type: integer
+          format: int64
+          example: 1
+        quantity:
+          type: integer
+          format: int32
+          example: 2
+          exclusiveMinimum: 0
+      required:
+      - bookId
+      - quantity
+    OrderRequest:
+      type: object
+      description: Who is ordering and which books
+      properties:
+        customerName:
+          type: string
+          example: Asha Rao
+          minLength: 1
+        customerEmail:
+          type: string
+          format: email
+          example: asha@vone8.com
+          minLength: 1
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderLineRequest"
+          minItems: 1
+      required:
+      - customerEmail
+      - customerName
+      - items
+    Order:
+      type: object
+      description: A customer order
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        customerName:
+          type: string
+          example: Asha Rao
+        customerEmail:
+          type: string
+          example: asha@vone8.com
+        status:
+          type: string
+          enum:
+          - PLACED
+          - CANCELLED
+        createdAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        total:
+          type: number
+          description: Sum of all line totals
+          example: 19.98
+    OrderItem:
+      type: object
+      description: One book in an order
+      properties:
+        bookId:
+          type: integer
+          format: int64
+          example: 1
+        title:
+          type: string
+          example: Dune
+        quantity:
+          type: integer
+          format: int32
+          example: 2
+        unitPrice:
+          type: number
+          example: 9.99
+        lineTotal:
+          type: number
+          description: quantity x unitPrice
+          example: 19.98
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
