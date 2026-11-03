@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: bookstore-app
+    env: docker
+    plan: free
+    envVars:
+      - key: BOOKSTORE_USER
+        value: student
+      - key: BOOKSTORE_PASSWORD
+        value: bookstore123
